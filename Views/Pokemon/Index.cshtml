@@ -1,0 +1,48 @@
+@model PokeApiEntrevista.ViewModels.PokemonListViewModel
+@{
+    ViewData["Title"] = "Pokémon";
+}
+<h1>Listado de Pokémon</h1>
+<p>Pokémon obtenidos desde PokeAPI.</p>
+
+@* Verifica si ocurrió algún error. *@
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @Model.ErrorMessage
+    </div>
+}
+else if (Model.Pokemon.Count == 0)
+{
+    @* Mensaje cuando la lista está vacía. *@
+    <div class="alert alert-warning">
+        No se encontraron Pokémon.
+    </div>
+}
+else
+{
+    @* Muestra la cantidad total de Pokémon. *@
+    <p>
+        Total disponibles:
+        <strong>@Model.TotalCount</strong>
+    </p>
+
+    @* Contenedor que organiza las tarjetas en forma de grid. *@
+    <div class="pokemon-grid">
+        @* Recorre cada Pokémon recibido. *@
+        @foreach (var pokemon in Model.Pokemon)
+        {
+            @* Tarjeta individual del Pokémon. *@
+            <article class="pokemon-card">
+                @* Imagen del Pokémon. *@
+                <img
+                    src="@pokemon.ImageUrl"
+                    alt="Imagen de @pokemon.Name"
+                    loading="lazy" />
+
+                @* Nombre del Pokémon. *@
+                <h2>@pokemon.Name</h2>
+            </article>
+        }
+    </div>
+}

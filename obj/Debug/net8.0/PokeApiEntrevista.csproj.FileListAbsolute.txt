@@ -28,3 +28,4 @@ C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\refint\PokeApiEntrevista.dl
 C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\PokeApiEntrevista.pdb
 C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\PokeApiEntrevista.genruntimeconfig.cache
 C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\ref\PokeApiEntrevista.dll
+C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\PokeApiEntrevista.sourcelink.json

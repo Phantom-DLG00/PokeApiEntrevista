@@ -175,18 +175,56 @@ public sealed class PokemonController : Controller
             // Envia los datos preparados a la view
             return View(viewModel);
         }
-        catch (Exception exception)
+        catch (OperationCanceledException)
+    when (cancellationToken.IsCancellationRequested)
         {
-            // Registra el error tecnico para poder revisarlo
+            // Registra que la solicitud fue cancelada por el usuario
+            _logger.LogInformation(
+                "La solicitud fue cancelada por el usuario");
+
+            // Finaliza la solicitud sin mostrar un error
+            return new EmptyResult();
+        }
+        catch (TaskCanceledException exception)
+        {
+            // Registra que PokeAPI tardo demasiado tiempo
+            _logger.LogWarning(
+                exception,
+                "La solicitud a PokeAPI supero el tiempo limite");
+
+            // Define el mensaje relacionado con el tiempo de espera
+            viewModel.ErrorMessage =
+                "La solicitud tardo demasiado tiempo. Intenta nuevamente";
+
+            // Muestra la view con el mensaje de tiempo de espera
+            return View(viewModel);
+        }
+        catch (HttpRequestException exception)
+        {
+            // Registra el error de comunicacion con PokeAPI
             _logger.LogError(
                 exception,
-                "Ocurrio un error al obtener los Pokemon");
+                "No fue posible comunicarse con PokeAPI");
 
-            // Define el mensaje que vera el usuario
+            // Define el mensaje relacionado con la conexion
             viewModel.ErrorMessage =
-                "No fue posible obtener los Pokemon desde PokeAPI";
+                "No fue posible conectarse con PokeAPI";
 
-            // Muestra la view con el mensaje de error
+            // Muestra la view con el mensaje de conexion
+            return View(viewModel);
+        }
+        catch (Exception exception)
+        {
+            // Registra cualquier error que no haya sido contemplado
+            _logger.LogError(
+                exception,
+                "Ocurrio un error inesperado");
+
+            // Define un mensaje general para el usuario
+            viewModel.ErrorMessage =
+                "Ocurrio un error inesperado";
+
+            // Muestra la view con el mensaje general
             return View(viewModel);
         }
     }

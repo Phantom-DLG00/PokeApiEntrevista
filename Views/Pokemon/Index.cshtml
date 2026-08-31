@@ -5,9 +5,48 @@
     ViewData["Title"] = "Pokemon";
 }
 
-<h1>Listado de Pokemon</h1>
+<h1>Listado de Pokémon</h1>
 
-<p>Pokemon obtenidos desde PokeAPI</p>
+<p>Pokémon obtenidos desde PokeAPI</p>
+
+<form
+    method="get"
+    asp-controller="Pokemon"
+    asp-action="Index"
+    class="search-form">
+
+    <input
+        type="hidden"
+        name="page"
+        value="1" />
+
+    <input
+        type="hidden"
+        name="pageSize"
+        value="@Model.PageSize" />
+
+    <label for="name">
+        Buscar por nombre
+    </label>
+
+    <input
+        id="name"
+        name="name"
+        value="@Model.NameFilter"
+        placeholder="Ejemplo: pika" />
+
+    <button type="submit">
+        Buscar
+    </button>
+
+    <a
+        asp-controller="Pokemon"
+        asp-action="Index"
+        asp-route-page="1"
+        asp-route-pageSize="@Model.PageSize">
+        Limpiar
+    </a>
+</form>
 
 @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
 {
@@ -18,7 +57,7 @@
 else if (Model.Pokemon.Count == 0)
 {
     <div class="alert alert-warning">
-        No se encontraron Pokemon
+        No se encontraron Pokémon con ese nombre
     </div>
 }
 else
@@ -39,8 +78,13 @@ else
             name="page"
             value="1" />
 
+        <input
+            type="hidden"
+            name="name"
+            value="@Model.NameFilter" />
+
         <label for="pageSize">
-            Pokemon por pagina:
+            Pokémon por página
         </label>
 
         <select
@@ -95,7 +139,8 @@ else
                 asp-controller="Pokemon"
                 asp-action="Index"
                 asp-route-page="@(Model.CurrentPage - 1)"
-                asp-route-pageSize="@Model.PageSize">
+                asp-route-pageSize="@Model.PageSize"
+                asp-route-name="@Model.NameFilter">
                 Anterior
             </a>
         }
@@ -116,7 +161,8 @@ else
                 asp-controller="Pokemon"
                 asp-action="Index"
                 asp-route-page="@(Model.CurrentPage + 1)"
-                asp-route-pageSize="@Model.PageSize">
+                asp-route-pageSize="@Model.PageSize"
+                asp-route-name="@Model.NameFilter">
                 Siguiente
             </a>
         }

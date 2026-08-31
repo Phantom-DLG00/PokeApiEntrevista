@@ -88,4 +88,24 @@ public sealed class PokeApiService : IPokeApiService
         // Devuelve los datos convertidos a objetos C#.
         return result;
     }
+
+
+    // Obtiene todos los Pokemon disponibles en PokeAPI
+    public async Task<PokeApiListResponse> GetAllPokemonAsync(CancellationToken cancellationToken = default)
+    {
+        // Obtiene la cantidad total de Pokemon disponibles
+        var firstResponse = await GetPokemonPageAsync(
+            1,
+            0,
+            cancellationToken);
+
+        // Devuelve una respuesta vacia cuando no existen Pokemon
+        if (firstResponse.Count == 0)
+        {
+            return firstResponse;
+        }
+
+        // Solicita todos los Pokemon usando la cantidad total encontrada
+        return await GetPokemonPageAsync(firstResponse.Count,0,cancellationToken);
+    }
 }

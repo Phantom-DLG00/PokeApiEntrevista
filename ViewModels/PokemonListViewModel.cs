@@ -12,6 +12,9 @@ public sealed class PokemonListViewModel
     // Guarda el mensaje que se mostrara cuando ocurra un error
     public string? ErrorMessage { get; set; }
 
+    // Guarda el texto que el usuario escribio en el buscador
+    public string NameFilter { get; set; } = string.Empty;
+
     // Guarda el numero de la pagina que se esta mostrando
     public int CurrentPage { get; set; }
 

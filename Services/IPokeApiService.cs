@@ -1,11 +1,6 @@
-// Importa el modelo que utilizaremos como respuesta.
 using PokeApiEntrevista.Models.PokeApi;
 
-// Indica el espacio de nombres del servicio.
 namespace PokeApiEntrevista.Services;
-
-// La letra "I" al inicio indica que es una interfaz.
-// Una interfaz define qué acciones debe ofrecer una clase.
 public interface IPokeApiService
 {
     // Declara un método para obtener una página de Pokémon.
@@ -19,4 +14,10 @@ public interface IPokeApiService
         int limit,
         int offset,
         CancellationToken cancellationToken = default);
+
+    
+    // Obtiene todos los Pokemon para realizar filtros locales
+    Task<PokeApiListResponse> GetAllPokemonAsync(CancellationToken cancellationToken = default);
+
+
 }

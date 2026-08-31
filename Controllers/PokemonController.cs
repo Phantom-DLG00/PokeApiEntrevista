@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PokeApiEntrevista.Models.PokeApi;
 using PokeApiEntrevista.Services;
 using PokeApiEntrevista.ViewModels;
 
@@ -24,6 +25,7 @@ public sealed class PokemonController : Controller
     }
 
     public async Task<IActionResult> Index(
+        string? name,
         int page = 1,
         int pageSize = 24,
         CancellationToken cancellationToken = default)
@@ -37,11 +39,14 @@ public sealed class PokemonController : Controller
         // Define los tamanos de pagina permitidos en la aplicacion
         var allowedPageSizes = new[] { 12, 24, 48, 96 };
 
-        // Utiliza 20 Pokemon si el tamano recibido no esta permitido
+        // Utiliza 24 Pokemon si el tamano recibido no esta permitido
         if (!allowedPageSizes.Contains(pageSize))
         {
             pageSize = 24;
         }
+
+        // Limpia los espacios innecesarios del texto recibido
+        var nameFilter = name?.Trim() ?? string.Empty;
 
         // Calcula desde que Pokemon debe comenzar la consulta
         var offset = checked((page - 1) * pageSize);
@@ -50,25 +55,60 @@ public sealed class PokemonController : Controller
         var viewModel = new PokemonListViewModel
         {
             CurrentPage = page,
-            PageSize = pageSize
+            PageSize = pageSize,
+            NameFilter = nameFilter
         };
 
         try
         {
-            // Solicita a PokeAPI los Pokemon de la pagina actual
-            var response = await _pokeApiService
-                .GetPokemonPageAsync(
-                    pageSize,
-                    offset,
-                    cancellationToken);
+            // Declara los Pokemon que se mostraran en la pagina actual
+            IEnumerable<PokeApiResource> resourcesForPage;
 
-            // Guarda la cantidad total de Pokemon disponibles
-            viewModel.TotalCount = response.Count;
+            if (string.IsNullOrWhiteSpace(nameFilter))
+            {
+                // Solicita a PokeAPI los Pokemon de la pagina actual
+                var response = await _pokeApiService
+                    .GetPokemonPageAsync(
+                        pageSize,
+                        offset,
+                        cancellationToken);
 
-            // Calcula cuantas paginas existen usando el total de resultados
+                // Guarda la cantidad total de Pokemon disponibles
+                viewModel.TotalCount = response.Count;
+
+                // Utiliza los resultados recibidos para mostrarlos
+                resourcesForPage = response.Results;
+            }
+            else
+            {
+                // Obtiene todos los Pokemon para aplicar el filtro
+                var response = await _pokeApiService
+                    .GetAllPokemonAsync(
+                        cancellationToken);
+
+                // Conserva los Pokemon que coinciden con la busqueda
+                var matchingResources = response.Results
+                    .Where(resource =>
+                        resource.Name.Contains(
+                            nameFilter,
+                            StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                // Guarda la cantidad de resultados filtrados
+                viewModel.TotalCount = matchingResources.Count;
+
+                // Aplica la paginacion sobre los resultados filtrados
+                resourcesForPage = matchingResources
+                    .Skip(offset)
+                    .Take(pageSize);
+            }
+
+            // Calcula cuantas paginas existen en total
             viewModel.TotalPages =
-                (int)Math.Ceiling(
-                    response.Count / (double)pageSize);
+                viewModel.TotalCount == 0
+                    ? 0
+                    : (int)Math.Ceiling(
+                        viewModel.TotalCount / (double)pageSize);
 
             // Envia al usuario a la ultima pagina si solicito una pagina inexistente
             if (page > viewModel.TotalPages &&
@@ -79,33 +119,14 @@ public sealed class PokemonController : Controller
                     new
                     {
                         page = viewModel.TotalPages,
-                        pageSize
+                        pageSize,
+                        name = nameFilter
                     });
             }
 
-            // Convierte los resultados de PokeAPI al formato que necesita la view
-            viewModel.Pokemon = response.Results
-                .Select(resource =>
-                {
-                    // Obtiene el numero del Pokemon desde su URL
-                    var pokemonId = GetPokemonId(resource.Url);
-
-                    // Crea el objeto que utilizara la view
-                    return new PokemonListItemViewModel
-                    {
-                        // Guarda el nombre recibido desde PokeAPI
-                        Name = resource.Name,
-
-                        // Construye la URL de la imagen oficial
-                        ImageUrl =
-                            $"https://raw.githubusercontent.com/" +
-                            $"PokeAPI/sprites/master/sprites/pokemon/" +
-                            $"other/official-artwork/{pokemonId}.png",
-
-                        // Guarda la URL original del Pokemon
-                        ApiUrl = resource.Url
-                    };
-                })
+            // Convierte los resultados al formato que necesita la view
+            viewModel.Pokemon = resourcesForPage
+                .Select(MapToViewModel)
                 .ToList();
 
             // Envia los datos preparados a la view
@@ -125,6 +146,29 @@ public sealed class PokemonController : Controller
             // Muestra la view con el mensaje de error
             return View(viewModel);
         }
+    }
+
+    private static PokemonListItemViewModel MapToViewModel(
+        PokeApiResource resource)
+    {
+        // Obtiene el numero del Pokemon desde su URL
+        var pokemonId = GetPokemonId(resource.Url);
+
+        // Crea el objeto que utilizara la view
+        return new PokemonListItemViewModel
+        {
+            // Guarda el nombre recibido desde PokeAPI
+            Name = resource.Name,
+
+            // Construye la URL de la imagen oficial
+            ImageUrl =
+                $"https://raw.githubusercontent.com/" +
+                $"PokeAPI/sprites/master/sprites/pokemon/" +
+                $"other/official-artwork/{pokemonId}.png",
+
+            // Guarda la URL original del Pokemon
+            ApiUrl = resource.Url
+        };
     }
 
     private static int GetPokemonId(string url)

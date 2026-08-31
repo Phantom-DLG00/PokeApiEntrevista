@@ -9,41 +9,41 @@
 
 <p>Pokémon obtenidos desde PokeAPI</p>
 
-<form
-    method="get"
-    asp-controller="Pokemon"
-    asp-action="Index"
-    class="search-form">
+<form method="get" asp-controller="Pokemon" asp-action="Index" class="search-form">
 
-    <input
-        type="hidden"
-        name="page"
-        value="1" />
+    <input type="hidden" name="page" value="1" />
 
-    <input
-        type="hidden"
-        name="pageSize"
-        value="@Model.PageSize" />
+    <input type="hidden" name="pageSize" value="@Model.PageSize" />
 
     <label for="name">
         Buscar por nombre
     </label>
 
-    <input
-        id="name"
-        name="name"
-        value="@Model.NameFilter"
-        placeholder="Ejemplo: pika" />
+    <input id="name" name="name" value="@Model.NameFilter" placeholder="Ejemplo: pika" />
+
+    <label for="species">
+        Especie
+    </label>
+
+    <select id="species" name="species">
+
+        <option value="">
+            Todas las especies
+        </option>
+
+        @foreach (var species in Model.Species)
+        {
+            <option value="@species" selected="@(Model.SpeciesFilter == species ? "selected" : null)">
+                @species
+            </option>
+        }
+    </select>
 
     <button type="submit">
         Buscar
     </button>
 
-    <a
-        asp-controller="Pokemon"
-        asp-action="Index"
-        asp-route-page="1"
-        asp-route-pageSize="@Model.PageSize">
+    <a asp-controller="Pokemon" asp-action="Index" asp-route-page="1" asp-route-pageSize="@Model.PageSize">
         Limpiar
     </a>
 </form>
@@ -67,52 +67,32 @@ else
         <strong>@Model.TotalCount</strong>
     </p>
 
-    <form
-        method="get"
-        asp-controller="Pokemon"
-        asp-action="Index"
-        class="page-size-form">
+    <form method="get" asp-controller="Pokemon" asp-action="Index" class="page-size-form">
 
-        <input
-            type="hidden"
-            name="page"
-            value="1" />
+        <input type="hidden" name="page" value="1" />
 
-        <input
-            type="hidden"
-            name="name"
-            value="@Model.NameFilter" />
+        <input type="hidden" name="name" value="@Model.NameFilter" />
+        <input type="hidden" name="species" value="@Model.SpeciesFilter" />
 
         <label for="pageSize">
             Pokémon por página
         </label>
 
-        <select
-            id="pageSize"
-            name="pageSize"
-            onchange="this.form.submit()">
+        <select id="pageSize" name="pageSize" onchange="this.form.submit()">
 
-            <option
-                value="12"
-                selected="@(Model.PageSize == 12 ? "selected" : null)">
+            <option value="12" selected="@(Model.PageSize == 12 ? "selected" : null)">
                 12
             </option>
 
-            <option
-                value="24"
-                selected="@(Model.PageSize == 24 ? "selected" : null)">
+            <option value="24" selected="@(Model.PageSize == 24 ? "selected" : null)">
                 24
             </option>
 
-            <option
-                value="48"
-                selected="@(Model.PageSize == 48 ? "selected" : null)">
+            <option value="48" selected="@(Model.PageSize == 48 ? "selected" : null)">
                 48
             </option>
 
-            <option
-                value="96"
-                selected="@(Model.PageSize == 96 ? "selected" : null)">
+            <option value="96" selected="@(Model.PageSize == 96 ? "selected" : null)">
                 96
             </option>
         </select>
@@ -122,10 +102,7 @@ else
         @foreach (var pokemon in Model.Pokemon)
         {
             <article class="pokemon-card">
-                <img
-                    src="@pokemon.ImageUrl"
-                    alt="Imagen de @pokemon.Name"
-                    loading="lazy" />
+                <img src="@pokemon.ImageUrl" alt="Imagen de @pokemon.Name" loading="lazy" />
 
                 <h2>@pokemon.Name</h2>
             </article>
@@ -135,12 +112,9 @@ else
     <div class="pagination-controls">
         @if (Model.HasPreviousPage)
         {
-            <a
-                asp-controller="Pokemon"
-                asp-action="Index"
-                asp-route-page="@(Model.CurrentPage - 1)"
-                asp-route-pageSize="@Model.PageSize"
-                asp-route-name="@Model.NameFilter">
+            <a asp-controller="Pokemon" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)"
+               asp-route-species="@Model.SpeciesFilter" asp-route-pageSize="@Model.PageSize"
+               asp-route-name="@Model.NameFilter">
                 Anterior
             </a>
         }
@@ -157,12 +131,9 @@ else
 
         @if (Model.HasNextPage)
         {
-            <a
-                asp-controller="Pokemon"
-                asp-action="Index"
-                asp-route-page="@(Model.CurrentPage + 1)"
-                asp-route-pageSize="@Model.PageSize"
-                asp-route-name="@Model.NameFilter">
+            <a asp-controller="Pokemon" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)"
+               asp-route-species="@Model.SpeciesFilter" asp-route-pageSize="@Model.PageSize"
+               asp-route-name="@Model.NameFilter">
                 Siguiente
             </a>
         }

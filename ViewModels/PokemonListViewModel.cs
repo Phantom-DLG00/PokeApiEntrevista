@@ -15,6 +15,12 @@ public sealed class PokemonListViewModel
     // Guarda el texto que el usuario escribio en el buscador
     public string NameFilter { get; set; } = string.Empty;
 
+    // Guarda la especie seleccionada por el usuario
+    public string SpeciesFilter { get; set; } = string.Empty;
+
+    // Guarda las especies disponibles en el selector
+    public List<string> Species { get; set; } = new List<string>();
+
     // Guarda el numero de la pagina que se esta mostrando
     public int CurrentPage { get; set; }
 

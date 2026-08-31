@@ -19,5 +19,10 @@ public interface IPokeApiService
     // Obtiene todos los Pokemon para realizar filtros locales
     Task<PokeApiListResponse> GetAllPokemonAsync(CancellationToken cancellationToken = default);
 
+    // Obtiene las especies disponibles en PokeAPI
+    Task<PokeApiSpeciesResponse> GetSpeciesAsync(CancellationToken cancellationToken = default);
 
+    // Obtiene el detalle de una especie especifica
+    Task<PokeApiSpeciesDetailResponse> GetSpeciesDetailAsync(string speciesName, CancellationToken cancellationToken = default);
+    
 }

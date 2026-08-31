@@ -26,6 +26,7 @@ public sealed class PokemonController : Controller
 
     public async Task<IActionResult> Index(
         string? name,
+        string? species,
         int page = 1,
         int pageSize = 24,
         CancellationToken cancellationToken = default)
@@ -48,6 +49,9 @@ public sealed class PokemonController : Controller
         // Limpia los espacios innecesarios del texto recibido
         var nameFilter = name?.Trim() ?? string.Empty;
 
+        // Limpia el nombre de la especie recibida
+        var speciesFilter = species?.Trim() ?? string.Empty;
+
         // Calcula desde que Pokemon debe comenzar la consulta
         var offset = checked((page - 1) * pageSize);
 
@@ -56,17 +60,29 @@ public sealed class PokemonController : Controller
         {
             CurrentPage = page,
             PageSize = pageSize,
-            NameFilter = nameFilter
+            NameFilter = nameFilter,
+            SpeciesFilter = speciesFilter
         };
 
         try
         {
+
+            // Obtiene las especies disponibles para el selector
+            var speciesResponse = await _pokeApiService
+                .GetSpeciesAsync(cancellationToken);
+
+            // Guarda los nombres de las especies en el ViewModel
+            viewModel.Species = speciesResponse.Results
+                .Select(species => species.Name)
+                .ToList();
+
             // Declara los Pokemon que se mostraran en la pagina actual
             IEnumerable<PokeApiResource> resourcesForPage;
 
-            if (string.IsNullOrWhiteSpace(nameFilter))
+            if (string.IsNullOrWhiteSpace(nameFilter) &&
+                string.IsNullOrWhiteSpace(speciesFilter))
             {
-                // Solicita a PokeAPI los Pokemon de la pagina actual
+                // Solicita solamente la pagina actual desde PokeAPI
                 var response = await _pokeApiService
                     .GetPokemonPageAsync(
                         pageSize,
@@ -81,20 +97,47 @@ public sealed class PokemonController : Controller
             }
             else
             {
-                // Obtiene todos los Pokemon para aplicar el filtro
+                // Obtiene todos los Pokemon para aplicar los filtros
                 var response = await _pokeApiService
-                    .GetAllPokemonAsync(
-                        cancellationToken);
+                    .GetAllPokemonAsync(cancellationToken);
 
-                // Conserva los Pokemon que coinciden con la busqueda
-                var matchingResources = response.Results
-                    .Where(resource =>
-                        resource.Name.Contains(
-                            nameFilter,
-                            StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                // Comienza utilizando todos los Pokemon disponibles
+                IEnumerable<PokeApiResource> filteredResources =
+                    response.Results;
 
-                // Guarda la cantidad de resultados filtrados
+                if (!string.IsNullOrWhiteSpace(speciesFilter))
+                {
+                    // Obtiene los Pokemon relacionados con la especie seleccionada
+                    var speciesDetail = await _pokeApiService
+                        .GetSpeciesDetailAsync(
+                            speciesFilter,
+                            cancellationToken);
+
+                    // Guarda los nombres relacionados con la especie
+                    var speciesPokemonNames = speciesDetail.Varieties
+                        .Select(variety => variety.Pokemon.Name)
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                    // Conserva solamente los Pokemon de la especie seleccionada
+                    filteredResources = filteredResources
+                        .Where(resource =>
+                            speciesPokemonNames.Contains(resource.Name));
+                }
+
+                if (!string.IsNullOrWhiteSpace(nameFilter))
+                {
+                    // Conserva los Pokemon que coinciden con el nombre buscado
+                    filteredResources = filteredResources
+                        .Where(resource =>
+                            resource.Name.Contains(
+                                nameFilter,
+                                StringComparison.OrdinalIgnoreCase));
+                }
+
+                // Convierte el resultado filtrado en una lista
+                var matchingResources = filteredResources.ToList();
+
+                // Guarda la cantidad total de resultados filtrados
                 viewModel.TotalCount = matchingResources.Count;
 
                 // Aplica la paginacion sobre los resultados filtrados

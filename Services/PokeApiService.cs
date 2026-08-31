@@ -108,4 +108,62 @@ public sealed class PokeApiService : IPokeApiService
         // Solicita todos los Pokemon usando la cantidad total encontrada
         return await GetPokemonPageAsync(firstResponse.Count,0,cancellationToken);
     }
+
+    // Obtiene la lista de especies desde PokeAPI
+    public async Task<PokeApiSpeciesResponse> GetSpeciesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        // Solicita todas las especies disponibles
+        var result = await _httpClient.GetFromJsonAsync<PokeApiSpeciesResponse>(
+            "pokemon-species?limit=2000",
+            cancellationToken);
+
+        // Verifica que PokeAPI haya devuelto datos
+        if (result is null)
+        {
+            throw new InvalidOperationException(
+                "PokeAPI devolvio una respuesta vacia");
+        }
+
+        // Ordena las especies alfabeticamente
+        result.Results = result.Results
+            .OrderBy(species => species.Name)
+            .ToList();
+
+        // Devuelve las especies ordenadas
+        return result;
+    }
+
+    // Obtiene los Pokemon relacionados con una especie
+    public async Task<PokeApiSpeciesDetailResponse> GetSpeciesDetailAsync(string speciesName,CancellationToken cancellationToken = default)
+    {
+        // Verifica que el nombre de especie tenga contenido
+        if (string.IsNullOrWhiteSpace(speciesName))
+        {
+            throw new ArgumentException(
+                "El nombre de la especie es obligatorio",
+                nameof(speciesName));
+        }
+
+        // Codifica el nombre para utilizarlo dentro de la URL
+        var encodedSpeciesName =
+            Uri.EscapeDataString(speciesName);
+
+        // Consulta el detalle de la especie seleccionada
+        var result = await _httpClient
+            .GetFromJsonAsync<PokeApiSpeciesDetailResponse>(
+                $"pokemon-species/{encodedSpeciesName}",
+                cancellationToken);
+
+        // Verifica que PokeAPI haya devuelto datos
+        if (result is null)
+        {
+            throw new InvalidOperationException(
+                "PokeAPI devolvio una respuesta vacia");
+        }
+
+        // Devuelve la informacion de la especie
+        return result;
+    }
+    
 }

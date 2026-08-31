@@ -1,11 +1,14 @@
 @model PokeApiEntrevista.ViewModels.PokemonListViewModel
-@{
-    ViewData["Title"] = "Pokémon";
-}
-<h1>Listado de Pokémon</h1>
-<p>Pokémon obtenidos desde PokeAPI.</p>
 
-@* Verifica si ocurrió algún error. *@
+@{
+    // Define el titulo que aparecera en la pestana del navegador
+    ViewData["Title"] = "Pokemon";
+}
+
+<h1>Listado de Pokemon</h1>
+
+<p>Pokemon obtenidos desde PokeAPI</p>
+
 @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
 {
     <div class="alert alert-danger">
@@ -14,35 +17,114 @@
 }
 else if (Model.Pokemon.Count == 0)
 {
-    @* Mensaje cuando la lista está vacía. *@
     <div class="alert alert-warning">
-        No se encontraron Pokémon.
+        No se encontraron Pokemon
     </div>
 }
 else
 {
-    @* Muestra la cantidad total de Pokémon. *@
     <p>
         Total disponibles:
         <strong>@Model.TotalCount</strong>
     </p>
 
-    @* Contenedor que organiza las tarjetas en forma de grid. *@
+    <form
+        method="get"
+        asp-controller="Pokemon"
+        asp-action="Index"
+        class="page-size-form">
+
+        <input
+            type="hidden"
+            name="page"
+            value="1" />
+
+        <label for="pageSize">
+            Pokemon por pagina:
+        </label>
+
+        <select
+            id="pageSize"
+            name="pageSize"
+            onchange="this.form.submit()">
+
+            <option
+                value="12"
+                selected="@(Model.PageSize == 12 ? "selected" : null)">
+                12
+            </option>
+
+            <option
+                value="24"
+                selected="@(Model.PageSize == 24 ? "selected" : null)">
+                24
+            </option>
+
+            <option
+                value="48"
+                selected="@(Model.PageSize == 48 ? "selected" : null)">
+                48
+            </option>
+
+            <option
+                value="96"
+                selected="@(Model.PageSize == 96 ? "selected" : null)">
+                96
+            </option>
+        </select>
+    </form>
+
     <div class="pokemon-grid">
-        @* Recorre cada Pokémon recibido. *@
         @foreach (var pokemon in Model.Pokemon)
         {
-            @* Tarjeta individual del Pokémon. *@
             <article class="pokemon-card">
-                @* Imagen del Pokémon. *@
                 <img
                     src="@pokemon.ImageUrl"
                     alt="Imagen de @pokemon.Name"
                     loading="lazy" />
 
-                @* Nombre del Pokémon. *@
                 <h2>@pokemon.Name</h2>
             </article>
+        }
+    </div>
+
+    <div class="pagination-controls">
+        @if (Model.HasPreviousPage)
+        {
+            <a
+                asp-controller="Pokemon"
+                asp-action="Index"
+                asp-route-page="@(Model.CurrentPage - 1)"
+                asp-route-pageSize="@Model.PageSize">
+                Anterior
+            </a>
+        }
+        else
+        {
+            <span class="disabled">
+                Anterior
+            </span>
+        }
+
+        <span>
+            Pagina @Model.CurrentPage de @Model.TotalPages
+        </span>
+
+        @if (Model.HasNextPage)
+        {
+            <a
+                asp-controller="Pokemon"
+                asp-action="Index"
+                asp-route-page="@(Model.CurrentPage + 1)"
+                asp-route-pageSize="@Model.PageSize">
+                Siguiente
+            </a>
+        }
+        else
+        {
+            <span class="disabled">
+                Siguiente
+            </span>
         }
     </div>
 }

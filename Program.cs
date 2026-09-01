@@ -41,7 +41,8 @@ builder.Services.AddHttpClient<
             new MediaTypeWithQualityHeaderValue(
                 "application/json"));
     });
-
+// Registra el servicio encargado de crear archivos Excel
+builder.Services.AddScoped<IPokemonExcelExportService,PokemonExcelExportService>();
 // Construye la aplicación.
 var app = builder.Build();
 // Si la aplicación no está en modo desarrollo...

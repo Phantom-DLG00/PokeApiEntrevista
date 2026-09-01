@@ -13,14 +13,21 @@ public sealed class PokemonController : Controller
     // Permite registrar errores tecnicos de la aplicacion
     private readonly ILogger<PokemonController> _logger;
 
+    // Guarda el servicio que crea archivos Excel
+    private readonly IPokemonExcelExportService _pokemonExcelExportService;
     public PokemonController(
         IPokeApiService pokeApiService,
+        IPokemonExcelExportService pokemonExcelExportService,
         ILogger<PokemonController> logger)
     {
-        // Guarda el servicio recibido mediante inyeccion de dependencias
+        // Guarda el servicio de PokeAPI
         _pokeApiService = pokeApiService;
 
-        // Guarda el logger recibido mediante inyeccion de dependencias
+        // Guarda el servicio de exportacion
+        _pokemonExcelExportService =
+            pokemonExcelExportService;
+
+        // Guarda el logger
         _logger = logger;
     }
 
@@ -29,6 +36,7 @@ public sealed class PokemonController : Controller
         string? species,
         int page = 1,
         int pageSize = 24,
+        bool export = false,
         CancellationToken cancellationToken = default)
     {
         // Evita que el usuario solicite una pagina menor que uno
@@ -171,6 +179,28 @@ public sealed class PokemonController : Controller
             viewModel.Pokemon = resourcesForPage
                 .Select(MapToViewModel)
                 .ToList();
+
+            if (export && viewModel.Pokemon.Count > 0)
+            {
+                // Crea el archivo Excel con los Pokemon visibles
+                var fileBytes = _pokemonExcelExportService
+                    .CreateExcel(
+                        viewModel.Pokemon,
+                        viewModel.NameFilter,
+                        viewModel.SpeciesFilter,
+                        viewModel.CurrentPage,
+                        viewModel.PageSize);
+
+                // Define el nombre del archivo descargable
+                var fileName =
+                    $"pokemon-pagina-{viewModel.CurrentPage}.xlsx";
+
+                // Devuelve el archivo Excel al navegador
+                return File(
+                    fileBytes,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName);
+            }
 
             // Envia los datos preparados a la view
             return View(viewModel);

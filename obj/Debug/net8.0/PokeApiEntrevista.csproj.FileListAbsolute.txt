@@ -29,3 +29,13 @@ C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\PokeApiEntrevista.pdb
 C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\PokeApiEntrevista.genruntimeconfig.cache
 C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\ref\PokeApiEntrevista.dll
 C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\PokeApiEntrevista.sourcelink.json
+C:\Users\Diego LG\PokeApiEntrevista\bin\Debug\net8.0\ClosedXML.dll
+C:\Users\Diego LG\PokeApiEntrevista\bin\Debug\net8.0\ClosedXML.Parser.dll
+C:\Users\Diego LG\PokeApiEntrevista\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+C:\Users\Diego LG\PokeApiEntrevista\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\Diego LG\PokeApiEntrevista\bin\Debug\net8.0\ExcelNumberFormat.dll
+C:\Users\Diego LG\PokeApiEntrevista\bin\Debug\net8.0\RBush.dll
+C:\Users\Diego LG\PokeApiEntrevista\bin\Debug\net8.0\SixLabors.Fonts.dll
+C:\Users\Diego LG\PokeApiEntrevista\bin\Debug\net8.0\System.IO.Packaging.dll
+C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\PokeApiEntrevista.csproj.AssemblyReference.cache
+C:\Users\Diego LG\PokeApiEntrevista\obj\Debug\net8.0\PokeApiE.3DA328CB.Up2Date

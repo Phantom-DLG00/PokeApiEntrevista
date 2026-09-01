@@ -48,6 +48,23 @@
     </a>
 </form>
 
+<form method="get" asp-controller="Pokemon" asp-action="Index">
+
+    <input type="hidden" name="name" value="@Model.NameFilter" />
+
+    <input type="hidden" name="species" value="@Model.SpeciesFilter" />
+
+    <input type="hidden" name="page" value="@Model.CurrentPage" />
+
+    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+
+    <input type="hidden" name="export" value="true" />
+
+    <button type="submit">
+        Exportar pagina actual
+    </button>
+</form>
+
 @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
 {
     <div class="alert alert-danger">

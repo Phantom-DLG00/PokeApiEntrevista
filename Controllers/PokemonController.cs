@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokeApiEntrevista.Models.PokeApi;
 using PokeApiEntrevista.Services;
 using PokeApiEntrevista.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace PokeApiEntrevista.Controllers;
 
@@ -13,11 +14,15 @@ public sealed class PokemonController : Controller
     // Permite registrar errores tecnicos de la aplicacion
     private readonly ILogger<PokemonController> _logger;
 
+    // Guarda el servicio que envia correos
+    private readonly IEmailService _emailService;
+
     // Guarda el servicio que crea archivos Excel
     private readonly IPokemonExcelExportService _pokemonExcelExportService;
     public PokemonController(
         IPokeApiService pokeApiService,
         IPokemonExcelExportService pokemonExcelExportService,
+        IEmailService emailService,
         ILogger<PokemonController> logger)
     {
         // Guarda el servicio de PokeAPI
@@ -26,6 +31,9 @@ public sealed class PokemonController : Controller
         // Guarda el servicio de exportacion
         _pokemonExcelExportService =
             pokemonExcelExportService;
+
+        // Guarda el servicio de correo
+        _emailService = emailService;
 
         // Guarda el logger
         _logger = logger;
@@ -303,4 +311,80 @@ public sealed class PokemonController : Controller
         // Devuelve cero cuando no se pudo obtener un identificador valido
         return 0;
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendEmail(
+    string recipientEmail,
+    string pokemonName,
+    string imageUrl,
+    string apiUrl,
+    string? name,
+    string? species,
+    int page = 1,
+    int pageSize = 24,
+    CancellationToken cancellationToken = default)
+    {
+        // Verifica que el correo tenga un formato valido
+        if (!new EmailAddressAttribute()
+            .IsValid(recipientEmail))
+        {
+            TempData["EmailError"] =
+                "Escribe una direccion de correo valida";
+
+            return RedirectToAction(
+                nameof(Index),
+                new
+                {
+                    name,
+                    species,
+                    page,
+                    pageSize
+                });
+        }
+
+        try
+        {
+            // Crea el ViewModel del Pokemon que sera enviado
+            var pokemon = new PokemonListItemViewModel
+            {
+                Name = pokemonName,
+                ImageUrl = imageUrl,
+                ApiUrl = apiUrl
+            };
+
+            // Envia la informacion mediante el servicio de correo
+            await _emailService.SendPokemonAsync(
+                recipientEmail,
+                pokemon,
+                cancellationToken);
+
+            // Guarda el mensaje de envio exitoso
+            TempData["EmailSuccess"] =
+                "El correo fue enviado correctamente";
+        }
+        catch (Exception exception)
+        {
+            // Registra el error tecnico del envio
+            _logger.LogError(
+                exception,
+                "Ocurrio un error al enviar el correo");
+
+            // Guarda el mensaje de error para el usuario
+            TempData["EmailError"] =
+                "No fue posible enviar el correo";
+        }
+
+        // Regresa a la pagina donde estaba el usuario
+        return RedirectToAction(
+            nameof(Index),
+            new
+            {
+                name,
+                species,
+                page,
+                pageSize
+            });
+    }
+
 }

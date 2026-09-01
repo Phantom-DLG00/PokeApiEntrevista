@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("ea962c3f-e48c-46ab-bd99-b200f7328e56")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("PokeApiEntrevista")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9e4e086046f5283920dd633b1b926b51913b6ccf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d64de889358369579d8cb320f0fbf5d90d3040c3")]
 [assembly: System.Reflection.AssemblyProductAttribute("PokeApiEntrevista")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PokeApiEntrevista")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

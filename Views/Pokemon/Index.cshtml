@@ -5,6 +5,20 @@
     ViewData["Title"] = "Pokemon";
 }
 
+@if (TempData["EmailSuccess"] is string successMessage)
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
+@if (TempData["EmailError"] is string errorMessage)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
 <h1>Listado de Pokémon</h1>
 
 <p>Pokémon obtenidos desde PokeAPI</p>
@@ -65,6 +79,8 @@
     </button>
 </form>
 
+
+
 @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
 {
     <div class="alert alert-danger">
@@ -122,9 +138,35 @@ else
                 <img src="@pokemon.ImageUrl" alt="Imagen de @pokemon.Name" loading="lazy" />
 
                 <h2>@pokemon.Name</h2>
+                <form method="post" asp-controller="Pokemon" asp-action="SendEmail">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="email" name="recipientEmail" placeholder="correo@ejemplo.com" required />
+
+                    <input type="hidden" name="pokemonName" value="@pokemon.Name" />
+
+                    <input type="hidden" name="imageUrl" value="@pokemon.ImageUrl" />
+
+                    <input type="hidden" name="apiUrl" value="@pokemon.ApiUrl" />
+
+                    <input type="hidden" name="name" value="@Model.NameFilter" />
+
+                    <input type="hidden" name="species" value="@Model.SpeciesFilter" />
+
+                    <input type="hidden" name="page" value="@Model.CurrentPage" />
+
+                    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+
+                    <button type="submit">
+                        Enviar por correo
+                    </button>
+                </form>
             </article>
         }
     </div>
+
+    
 
     <div class="pagination-controls">
         @if (Model.HasPreviousPage)

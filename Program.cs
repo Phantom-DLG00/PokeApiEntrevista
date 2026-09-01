@@ -43,6 +43,15 @@ builder.Services.AddHttpClient<
     });
 // Registra el servicio encargado de crear archivos Excel
 builder.Services.AddScoped<IPokemonExcelExportService,PokemonExcelExportService>();
+
+// Lee la configuracion del correo desde appsettings y User Secrets
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+
+// Registra el servicio de envio de correos
+builder.Services.AddScoped<
+    IEmailService,
+    SmtpEmailService>();
+    
 // Construye la aplicación.
 var app = builder.Build();
 // Si la aplicación no está en modo desarrollo...

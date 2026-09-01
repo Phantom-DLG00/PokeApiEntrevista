@@ -5,8 +5,6 @@ using PokeApiEntrevista.Configuration;
 // Importa la interfaz y la implementación del servicio.
 using PokeApiEntrevista.Services;
 
-***REMOVED***
-
 // Crea el constructor principal de la aplicación.
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +74,6 @@ app.UseAuthorization();
 // Define la ruta principal de MVC.
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Pokemon}/{action=Index}/{id?}");
 
 app.Run();

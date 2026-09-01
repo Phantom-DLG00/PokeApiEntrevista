@@ -83,8 +83,6 @@ public sealed class PokeApiService : IPokeApiService
                 "PokeAPI devolvió una respuesta vacía.");
         }
 
-        ***REMOVED***
-
         // Devuelve los datos convertidos a objetos C#.
         return result;
     }
